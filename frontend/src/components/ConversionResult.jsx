@@ -1,0 +1,60 @@
+function ConversionResult({ status, downloadUrl, downloadFilename, errorMessage, onReset }) {
+  if (status === 'idle') return null
+
+  if (status === 'success') {
+    return (
+      <div className="mt-6 p-5 bg-green-50 border border-green-200 rounded-xl">
+        <div className="flex items-center gap-2 mb-3">
+          <svg className="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-green-800 font-semibold">Conversion successful!</p>
+        </div>
+        <a
+          href={downloadUrl}
+          download={downloadFilename}
+          className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors duration-200"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Download {downloadFilename}
+        </a>
+        <button
+          onClick={onReset}
+          className="ml-3 text-sm text-gray-500 hover:text-gray-700 underline"
+        >
+          Convert another file
+        </button>
+      </div>
+    )
+  }
+
+  if (status === 'error') {
+    return (
+      <div className="mt-6 p-5 bg-red-50 border border-red-200 rounded-xl">
+        <div className="flex items-start gap-2">
+          <svg className="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <p className="text-red-800 font-semibold mb-1">Conversion failed</p>
+            <p className="text-red-700 text-sm">{errorMessage}</p>
+          </div>
+        </div>
+        <button
+          onClick={onReset}
+          className="mt-3 text-sm text-red-600 hover:text-red-800 underline"
+        >
+          Try again
+        </button>
+      </div>
+    )
+  }
+
+  return null
+}
+
+export default ConversionResult
