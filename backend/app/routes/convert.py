@@ -61,7 +61,9 @@ async def convert_file(
         output_path = await conversion_service.convert(input_path, source_ext, target_format)
 
         media_type = file_handler.get_media_type(target_format)
-        output_filename = os.path.splitext(file.filename)[0] + f".{target_format}"
+        # Use only the base filename (no directory components) to prevent path traversal
+        safe_basename = os.path.basename(file.filename)
+        output_filename = os.path.splitext(safe_basename)[0] + f".{target_format}"
 
         return FileResponse(
             path=output_path,

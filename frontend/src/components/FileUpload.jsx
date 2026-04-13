@@ -24,7 +24,7 @@ function FileUpload({ file, onFileChange }) {
     e.preventDefault()
     const dropped = e.dataTransfer.files[0]
     validateAndSet(dropped)
-  }, [])
+  }, [onFileChange])
 
   const handleDragOver = (e) => e.preventDefault()
 

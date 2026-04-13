@@ -1,6 +1,5 @@
 import os
 import csv
-import zipfile
 from pathlib import Path
 from fastapi import HTTPException
 
@@ -52,24 +51,10 @@ class ConversionService:
         try:
             from pdf2image import convert_from_path  # type: ignore
 
-            images = convert_from_path(input_path, dpi=150)
-            if len(images) == 1:
-                fmt = "JPEG" if target_format == "jpg" else "PNG"
-                images[0].save(output_path, fmt)
-            else:
-                # Multiple pages → ZIP archive
-                zip_path = output_path.replace(f".{target_format}", ".zip")
-                with zipfile.ZipFile(zip_path, "w") as zf:
-                    for i, img in enumerate(images):
-                        img_bytes = io.BytesIO()
-                        fmt = "JPEG" if target_format == "jpg" else "PNG"
-                        img.save(img_bytes, fmt)
-                        zf.writestr(f"page_{i+1}.{target_format}", img_bytes.getvalue())
-                # Replace output_path with zip path
-                import shutil
-                shutil.move(zip_path, output_path.replace(f".{target_format}", ".zip"))
-                # Rename so caller picks up zip
-                os.rename(output_path.replace(f".{target_format}", ".zip"), output_path)
+            # Convert only the first page to a single image file
+            images = convert_from_path(input_path, dpi=150, first_page=1, last_page=1)
+            fmt = "JPEG" if target_format == "jpg" else "PNG"
+            images[0].save(output_path, fmt)
         except ImportError:
             # Fallback: extract embedded images from first page
             page = reader.pages[0]
@@ -87,17 +72,14 @@ class ConversionService:
                 fmt = "JPEG" if target_format == "jpg" else "PNG"
                 images_extracted[0].save(output_path, fmt)
             else:
-                # Last resort: render blank placeholder
-                img = Image.new("RGB", (800, 1000), color=(255, 255, 255))
-                from PIL import ImageDraw, ImageFont
-                draw = ImageDraw.Draw(img)
-                draw.text(
-                    (50, 50),
-                    f"PDF converted - Page 1\n(Install pdf2image for full rendering)",
-                    fill=(0, 0, 0),
+                raise HTTPException(
+                    status_code=500,
+                    detail=(
+                        "PDF rendering requires poppler-utils. "
+                        "Install it with: apt-get install poppler-utils (Linux) "
+                        "or brew install poppler (macOS), then reinstall pdf2image."
+                    ),
                 )
-                fmt = "JPEG" if target_format == "jpg" else "PNG"
-                img.save(output_path, fmt)
 
     # ------------------------------------------------------------------ #
     # Image ↔ Image
