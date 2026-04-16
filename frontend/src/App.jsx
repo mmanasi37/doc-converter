@@ -5,9 +5,9 @@ import FormatSelector from './components/FormatSelector'
 import ConversionResult from './components/ConversionResult'
 
 const SUPPORTED_FORMATS = {
-  docx: ['pdf'],
-  xlsx: ['csv', 'pdf'],
-  pdf: ['jpg', 'png'],
+  docx: ['pdf', 'xlsx'],
+  xlsx: ['csv', 'pdf', 'docx'],
+  pdf: ['jpg', 'png', 'docx'],
   jpg: ['png', 'pdf'],
   jpeg: ['png', 'pdf'],
   png: ['jpg', 'pdf'],
@@ -87,34 +87,34 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-brand-bg">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-brand-surface border-b border-brand-border shadow-lg">
         <div className="max-w-4xl mx-auto px-4 py-5 flex items-center gap-3">
-          <div className="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center">
+          <div className="w-9 h-9 bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-lg flex items-center justify-center">
             <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
             </svg>
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Doc Converter</h1>
-            <p className="text-xs text-gray-500">Convert between Word, Excel, PDF and images</p>
+            <h1 className="text-xl font-bold text-white">Doc Converter</h1>
+            <p className="text-xs text-brand-muted">Convert between Word, Excel, PDF and images</p>
           </div>
         </div>
       </header>
 
       {/* Main content */}
       <main className="max-w-4xl mx-auto px-4 py-10">
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
+        <div className="bg-brand-surface border border-brand-border rounded-2xl shadow-2xl p-8">
+          <h2 className="text-2xl font-semibold text-white mb-6 text-center">
             Convert Your Document
           </h2>
 
           {/* Step 1 – Upload */}
           <div className="mb-6">
-            <p className="text-sm font-medium text-gray-600 mb-2">
-              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-600 text-white text-xs mr-2">1</span>
+            <p className="text-sm font-medium text-zinc-400 mb-2">
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gradient-to-br from-purple-600 to-fuchsia-600 text-white text-xs mr-2">1</span>
               Select a file to convert
             </p>
             <FileUpload file={file} onFileChange={handleFileChange} />
@@ -123,8 +123,8 @@ function App() {
           {/* Step 2 – Format */}
           {file && (
             <div className="mb-6">
-              <p className="text-sm font-medium text-gray-600 mb-2">
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-600 text-white text-xs mr-2">2</span>
+              <p className="text-sm font-medium text-zinc-400 mb-2">
+                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gradient-to-br from-purple-600 to-fuchsia-600 text-white text-xs mr-2">2</span>
                 Choose output format
               </p>
               <FormatSelector
@@ -142,7 +142,7 @@ function App() {
               <button
                 onClick={handleConvert}
                 disabled={status === 'converting'}
-                className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold py-3 px-6 rounded-xl transition-colors duration-200 flex items-center justify-center gap-2"
+                className="flex-1 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 disabled:opacity-50 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
               >
                 {status === 'converting' ? (
                   <>
@@ -165,7 +165,7 @@ function App() {
               </button>
               <button
                 onClick={handleReset}
-                className="px-4 py-3 border border-gray-300 text-gray-600 hover:bg-gray-50 rounded-xl transition-colors duration-200"
+                className="px-4 py-3 border border-brand-border text-zinc-400 hover:bg-purple-900/30 hover:text-white rounded-xl transition-colors duration-200"
                 title="Start over"
               >
                 ✕
@@ -184,20 +184,20 @@ function App() {
         </div>
 
         {/* Supported conversions table */}
-        <div className="mt-8 bg-white rounded-2xl shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Supported Conversions</h3>
+        <div className="mt-8 bg-brand-surface border border-brand-border rounded-2xl shadow p-6">
+          <h3 className="text-lg font-semibold text-white mb-4">Supported Conversions</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {Object.entries(SUPPORTED_FORMATS).map(([src, targets]) =>
               targets.map((tgt) => (
                 <div
                   key={`${src}-${tgt}`}
-                  className="flex items-center gap-2 bg-indigo-50 rounded-lg px-3 py-2 text-sm"
+                  className="flex items-center gap-2 bg-purple-900/20 border border-brand-border rounded-lg px-3 py-2 text-sm"
                 >
-                  <span className="font-mono font-semibold text-indigo-700 uppercase">.{src}</span>
-                  <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <span className="font-mono font-semibold text-purple-400 uppercase">.{src}</span>
+                  <svg className="w-4 h-4 text-zinc-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
-                  <span className="font-mono font-semibold text-green-700 uppercase">.{tgt}</span>
+                  <span className="font-mono font-semibold text-fuchsia-400 uppercase">.{tgt}</span>
                 </div>
               ))
             )}
@@ -205,8 +205,8 @@ function App() {
         </div>
       </main>
 
-      <footer className="text-center text-sm text-gray-400 py-6">
-        Doc Converter · FastAPI + React + Tailwind CSS
+      <footer className="text-center text-sm text-brand-muted py-6">
+        Developed by <a href="https://github.com/mmanasi37" className="text-purple-400 hover:text-fuchsia-400 hover:underline">Manasi M</a>
       </footer>
     </div>
   )
