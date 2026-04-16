@@ -9,9 +9,9 @@ conversion_service = ConversionService()
 file_handler = FileHandler()
 
 SUPPORTED_FORMATS = {
-    "docx": ["pdf"],
-    "xlsx": ["csv", "pdf"],
-    "pdf": ["jpg", "png"],
+    "docx": ["pdf", "xlsx"],
+    "xlsx": ["csv", "pdf", "docx"],
+    "pdf": ["jpg", "png", "docx"],
     "jpg": ["png", "pdf"],
     "png": ["jpg", "pdf"],
     "jpeg": ["png", "pdf"],

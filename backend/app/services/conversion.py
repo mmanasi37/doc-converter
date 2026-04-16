@@ -13,13 +13,16 @@ class ConversionService:
         handlers = {
             ("pdf", "jpg"): self._pdf_to_image,
             ("pdf", "png"): self._pdf_to_image,
+            ("pdf", "docx"): self._pdf_to_docx,
             ("jpg", "png"): self._image_to_image,
             ("png", "jpg"): self._image_to_image,
             ("jpg", "pdf"): self._image_to_pdf,
             ("png", "pdf"): self._image_to_pdf,
             ("xlsx", "csv"): self._xlsx_to_csv,
             ("xlsx", "pdf"): self._xlsx_to_pdf,
+            ("xlsx", "docx"): self._xlsx_to_docx,
             ("docx", "pdf"): self._docx_to_pdf,
+            ("docx", "xlsx"): self._docx_to_xlsx,
         }
 
         handler = handlers.get((source_format, target_format))
@@ -80,6 +83,21 @@ class ConversionService:
                         "or brew install poppler (macOS), then reinstall pdf2image."
                     ),
                 )
+
+    # ------------------------------------------------------------------ #
+    # PDF → Word (DOCX)
+    # ------------------------------------------------------------------ #
+    async def _pdf_to_docx(self, input_path: str, output_path: str, _target_format: str):
+        try:
+            from pdf2docx import Converter  # type: ignore
+        except ImportError as e:
+            raise HTTPException(status_code=500, detail=f"Missing dependency: {e}")
+
+        cv = Converter(input_path)
+        try:
+            cv.convert(output_path, start=0, end=None)
+        finally:
+            cv.close()
 
     # ------------------------------------------------------------------ #
     # Image ↔ Image
@@ -190,6 +208,33 @@ class ConversionService:
         doc.build([table])
 
     # ------------------------------------------------------------------ #
+    # Excel → Word (DOCX)
+    # ------------------------------------------------------------------ #
+    async def _xlsx_to_docx(self, input_path: str, output_path: str, _target_format: str):
+        try:
+            import openpyxl
+            from docx import Document
+            from docx.oxml.ns import qn
+        except ImportError as e:
+            raise HTTPException(status_code=500, detail=f"Missing dependency: {e}")
+
+        wb = openpyxl.load_workbook(input_path, read_only=True, data_only=True)
+        ws = wb.active
+        rows = list(ws.iter_rows(values_only=True))  # type: ignore
+        wb.close()
+
+        if not rows:
+            raise HTTPException(status_code=400, detail="Excel file is empty")
+
+        document = Document()
+        table = document.add_table(rows=len(rows), cols=len(rows[0]))
+        table.style = "Table Grid"
+        for r_idx, row in enumerate(rows):
+            for c_idx, value in enumerate(row):
+                table.cell(r_idx, c_idx).text = str(value) if value is not None else ""
+        document.save(output_path)
+
+    # ------------------------------------------------------------------ #
     # Word → PDF
     # ------------------------------------------------------------------ #
     async def _docx_to_pdf(self, input_path: str, output_path: str, _target_format: str):
@@ -243,3 +288,34 @@ class ConversionService:
             story.append(Paragraph("(empty document)", styles["Normal"]))
 
         pdf_doc.build(story)
+
+    # ------------------------------------------------------------------ #
+    # Word → Excel (XLSX)
+    # ------------------------------------------------------------------ #
+    async def _docx_to_xlsx(self, input_path: str, output_path: str, _target_format: str):
+        try:
+            from docx import Document
+            import openpyxl
+        except ImportError as e:
+            raise HTTPException(status_code=500, detail=f"Missing dependency: {e}")
+
+        doc = Document(input_path)
+        wb = openpyxl.Workbook()
+        ws = wb.active
+
+        row_idx = 1
+        # Extract tables first
+        for table in doc.tables:
+            for row in table.rows:
+                ws.append([cell.text for cell in row.cells])
+                row_idx += 1
+            ws.append([])  # blank separator row between tables
+            row_idx += 1
+
+        # If no tables, fall back to writing paragraphs as rows
+        if row_idx == 1:
+            for para in doc.paragraphs:
+                if para.text.strip():
+                    ws.append([para.text])
+
+        wb.save(output_path)
