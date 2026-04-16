@@ -4,16 +4,18 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         brand: {
-          bg: '#0c0c14',
-          surface: '#13131f',
-          border: '#2d1f4e',
+          bg: 'var(--color-bg)',
+          surface: 'var(--color-surface)',
+          border: 'var(--color-border)',
+          text: 'var(--color-text)',
           primary: '#a855f7',
           secondary: '#d946ef',
-          muted: '#6b5b8a',
+          muted: 'var(--color-muted)',
         },
       },
     },

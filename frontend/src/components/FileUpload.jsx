@@ -48,8 +48,8 @@ function FileUpload({ file, onFileChange }) {
           </svg>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-white truncate">{file.name}</p>
-          <p className="text-xs text-zinc-500">{formatBytes(file.size)}</p>
+          <p className="text-sm font-medium text-brand-text truncate">{file.name}</p>
+          <p className="text-xs text-brand-muted">{formatBytes(file.size)}</p>
         </div>
         <button
           onClick={() => { onFileChange(null); if (inputRef.current) inputRef.current.value = '' }}
@@ -75,7 +75,7 @@ function FileUpload({ file, onFileChange }) {
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
           d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
       </svg>
-      <p className="text-sm font-medium text-zinc-300">
+      <p className="text-sm font-medium text-brand-muted dark:text-zinc-300">
         Drag &amp; drop a file here, or <span className="text-purple-400 underline">browse</span>
       </p>
       <p className="text-xs text-zinc-500 mt-1">

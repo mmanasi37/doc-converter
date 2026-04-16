@@ -23,7 +23,7 @@ function ConversionResult({ status, downloadUrl, downloadFilename, errorMessage,
         </a>
         <button
           onClick={onReset}
-          className="ml-3 text-sm text-zinc-500 hover:text-zinc-300 underline"
+          className="ml-3 text-sm text-brand-muted hover:text-brand-text underline"
         >
           Convert another file
         </button>

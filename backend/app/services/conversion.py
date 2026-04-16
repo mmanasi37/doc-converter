@@ -319,3 +319,26 @@ class ConversionService:
                     ws.append([para.text])
 
         wb.save(output_path)
+
+    # ------------------------------------------------------------------ #
+    # Merge PDFs
+    # ------------------------------------------------------------------ #
+    async def merge_pdfs(self, input_paths: list) -> str:
+        try:
+            import pypdf
+        except ImportError as e:
+            raise HTTPException(status_code=500, detail=f"Missing dependency: {e}")
+
+        import tempfile, uuid
+        output_path = os.path.join(tempfile.gettempdir(), f"{uuid.uuid4().hex}_merged.pdf")
+
+        writer = pypdf.PdfWriter()
+        for path in input_paths:
+            reader = pypdf.PdfReader(path)
+            for page in reader.pages:
+                writer.add_page(page)
+
+        with open(output_path, "wb") as f:
+            writer.write(f)
+
+        return output_path

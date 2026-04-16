@@ -21,7 +21,7 @@ function FormatSelector({ targets, value, onChange, sourceFormat }) {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full appearance-none bg-brand-surface border-2 border-brand-border focus:border-purple-500 rounded-xl px-4 py-3 pr-10 text-white text-sm font-medium outline-none transition-colors duration-200 cursor-pointer"
+        className="w-full appearance-none bg-brand-surface border-2 border-brand-border focus:border-purple-500 rounded-xl px-4 py-3 pr-10 text-brand-text text-sm font-medium outline-none transition-colors duration-200 cursor-pointer"
       >
         <option value="" disabled>— Select output format —</option>
         {targets.map((fmt) => (

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse
+from typing import List
 from app.services.conversion import ConversionService
 from app.utils.file_handler import FileHandler
 import os
@@ -79,3 +80,41 @@ async def convert_file(
         if output_path and os.path.exists(output_path):
             os.remove(output_path)
         raise HTTPException(status_code=500, detail=f"Conversion failed: {str(e)}")
+
+
+@router.post("/merge-pdf")
+async def merge_pdfs(
+    files: List[UploadFile] = File(...),
+):
+    if len(files) < 2:
+        raise HTTPException(status_code=400, detail="At least 2 PDF files are required to merge.")
+
+    for f in files:
+        ext = os.path.splitext(f.filename)[1].lower()
+        if ext != ".pdf":
+            raise HTTPException(status_code=400, detail=f"All files must be PDFs. Got: {f.filename}")
+
+    input_paths = []
+    output_path = None
+    try:
+        for f in files:
+            path = await file_handler.save_upload(f, "pdf")
+            input_paths.append(path)
+
+        output_path = await conversion_service.merge_pdfs(input_paths)
+
+        return FileResponse(
+            path=output_path,
+            media_type="application/pdf",
+            filename="merged.pdf",
+            background=file_handler.cleanup_task(*input_paths, output_path),
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        for p in input_paths:
+            if os.path.exists(p):
+                os.remove(p)
+        if output_path and os.path.exists(output_path):
+            os.remove(output_path)
+        raise HTTPException(status_code=500, detail=f"Merge failed: {str(e)}")
