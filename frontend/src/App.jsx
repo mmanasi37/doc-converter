@@ -8,7 +8,7 @@ import MergePDF from './components/MergePDF'
 const SUPPORTED_FORMATS = {
   docx: ['pdf', 'xlsx'],
   xlsx: ['csv', 'pdf', 'docx'],
-  pdf: ['jpg', 'png', 'docx'],
+  pdf: ['docx'],
   jpg: ['png', 'pdf'],
   jpeg: ['png', 'pdf'],
   png: ['jpg', 'pdf'],

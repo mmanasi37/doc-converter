@@ -11,8 +11,6 @@ class ConversionService:
         output_path = os.path.splitext(input_path)[0] + f"_out.{target_format}"
 
         handlers = {
-            ("pdf", "jpg"): self._pdf_to_image,
-            ("pdf", "png"): self._pdf_to_image,
             ("pdf", "docx"): self._pdf_to_docx,
             ("jpg", "png"): self._image_to_image,
             ("png", "jpg"): self._image_to_image,
@@ -35,57 +33,7 @@ class ConversionService:
         await handler(input_path, output_path, target_format)
         return output_path
 
-    # ------------------------------------------------------------------ #
-    # PDF → Image
-    # ------------------------------------------------------------------ #
-    async def _pdf_to_image(self, input_path: str, output_path: str, target_format: str):
-        try:
-            import pypdf
-            from PIL import Image
-            import io
-        except ImportError as e:
-            raise HTTPException(status_code=500, detail=f"Missing dependency: {e}")
-
-        reader = pypdf.PdfReader(input_path)
-        if len(reader.pages) == 0:
-            raise HTTPException(status_code=400, detail="PDF has no pages")
-
-        # Try pdf2image first (better quality), fall back to pypdf extraction
-        try:
-            from pdf2image import convert_from_path  # type: ignore
-
-            # Convert only the first page to a single image file
-            images = convert_from_path(input_path, dpi=150, first_page=1, last_page=1)
-            fmt = "JPEG" if target_format == "jpg" else "PNG"
-            images[0].save(output_path, fmt)
-        except ImportError:
-            # Fallback: extract embedded images from first page
-            page = reader.pages[0]
-            images_extracted = []
-            if "/Resources" in page and "/XObject" in page["/Resources"]:  # type: ignore
-                xobject = page["/Resources"]["/XObject"].get_object()  # type: ignore
-                for obj in xobject:
-                    img_obj = xobject[obj].get_object()
-                    if img_obj.get("/Subtype") == "/Image":
-                        data = img_obj.get_data()
-                        img = Image.open(io.BytesIO(data))
-                        images_extracted.append(img)
-
-            if images_extracted:
-                fmt = "JPEG" if target_format == "jpg" else "PNG"
-                images_extracted[0].save(output_path, fmt)
-            else:
-                raise HTTPException(
-                    status_code=500,
-                    detail=(
-                        "PDF rendering requires poppler-utils. "
-                        "Install it with: apt-get install poppler-utils (Linux) "
-                        "or brew install poppler (macOS), then reinstall pdf2image."
-                    ),
-                )
-
-    # ------------------------------------------------------------------ #
-    # PDF → Word (DOCX)  — text extraction via pypdf + python-docx
+    # ------------------------------------------------------------------ #\n    # PDF → Word (DOCX)  — text extraction via pypdf + python-docx
     # ------------------------------------------------------------------ #
     async def _pdf_to_docx(self, input_path: str, output_path: str, _target_format: str):
         try:
