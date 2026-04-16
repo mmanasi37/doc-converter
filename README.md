@@ -1,84 +1,87 @@
 # doc-converter
 
-A full-stack online document conversion application built with **FastAPI** (Python) and **React** (Tailwind CSS).
+A full-stack document conversion app built with **FastAPI** and **React**. Users can upload a file, choose a supported target format, and download the converted result from the browser.
+
+## Features
+
+- Clean drag-and-drop style upload flow
+- Fast format selection based on the uploaded file type
+- Downloadable converted output
+- Health-check and supported-formats API endpoints
+- Docker support for running frontend and backend together
 
 ## Supported Conversions
 
-| Source | Target Formats |
-|--------|---------------|
+| Source | Target formats |
+|--------|----------------|
 | `.docx` | PDF |
 | `.xlsx` | CSV, PDF |
 | `.pdf` | JPG, PNG |
 | `.jpg` / `.jpeg` | PNG, PDF |
 | `.png` | JPG, PDF |
 
----
-
 ## Project Structure
 
-```
+```text
 doc-converter/
 ├── backend/
 │   ├── app/
-│   │   ├── __init__.py
-│   │   ├── main.py            # FastAPI app + CORS
+│   │   ├── main.py
 │   │   ├── routes/
-│   │   │   └── convert.py     # API endpoints
 │   │   ├── services/
-│   │   │   └── conversion.py  # Conversion logic
 │   │   └── utils/
-│   │       └── file_handler.py
 │   ├── Dockerfile
 │   ├── requirements.txt
 │   ├── .env.example
-│   └── main.py                # Entry point
+│   └── main.py
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── FileUpload.jsx
-│   │   │   ├── FormatSelector.jsx
-│   │   │   └── ConversionResult.jsx
 │   │   ├── App.jsx
 │   │   ├── index.css
 │   │   └── main.jsx
 │   ├── Dockerfile
 │   ├── nginx.conf
 │   ├── package.json
-│   ├── tailwind.config.js
-│   ├── postcss.config.js
 │   └── .env.example
 ├── docker-compose.yml
-├── .gitignore
 └── README.md
 ```
 
----
-
-## Quick Start (Local Development)
+## Quick Start
 
 ### Prerequisites
 
 - Python 3.11+
 - Node.js 20+
-- `poppler-utils` (for PDF → image conversion):
-  - **Ubuntu/Debian**: `sudo apt-get install poppler-utils`
-  - **macOS**: `brew install poppler`
-  - **Windows**: download from [poppler releases](https://github.com/oschwartz10612/poppler-windows/releases)
+- Docker and Docker Compose, if running with containers
+- `poppler-utils` for PDF to image conversion support
 
-### Backend
+Install Poppler on Ubuntu or Debian:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y poppler-utils
+```
+
+### Local Development
+
+#### 1. Start the backend
 
 ```bash
 cd backend
-python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 python main.py
 ```
 
-The API will be available at `http://localhost:8000`.
+Backend runs on http://localhost:8000.
 
-### Frontend
+#### 2. Start the frontend
+
+In a second terminal:
 
 ```bash
 cd frontend
@@ -87,65 +90,70 @@ cp .env.example .env
 npm run dev
 ```
 
-The UI will be available at `http://localhost:5173`.
+Frontend runs on http://localhost:5173.
 
----
-
-## Docker Compose
+## Run with Docker
 
 ```bash
 docker compose up --build
 ```
 
-- Frontend: `http://localhost:5173`
-- Backend API: `http://localhost:8000`
+Services:
 
----
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8000
 
-## API Reference
+> Make sure the Docker daemon is running before starting the containers.
 
-### `GET /api/health`
-Returns the health status of the API.
+## API Endpoints
 
-### `GET /api/supported-formats`
-Returns a JSON object listing all supported source → target conversions.
+### GET /api/health
+Returns the backend health status.
 
-### `POST /api/convert`
-Converts a file to the requested format.
+### GET /api/supported-formats
+Returns the currently supported conversion matrix.
 
-**Form fields:**
+### POST /api/convert
+Converts the uploaded file to the selected format.
+
+Form fields:
+
 | Field | Type | Description |
 |-------|------|-------------|
-| `file` | `UploadFile` | The source file |
-| `target_format` | `string` | Desired output format (e.g. `pdf`, `jpg`) |
-
-**Response:** The converted file (binary) with appropriate `Content-Type` header.
-
----
+| `file` | UploadFile | Source file to convert |
+| `target_format` | string | Desired output format such as `pdf`, `jpg`, or `png` |
 
 ## Environment Variables
 
-### Backend (`backend/.env`)
+### Backend
+
+Create a file named `.env` inside the backend folder:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `ALLOWED_ORIGINS` | `http://localhost:5173,http://localhost:3000` | Comma-separated CORS origins |
-| `TEMP_DIR` | system temp | Directory for temporary file storage |
+| `ALLOWED_ORIGINS` | `http://localhost:5173,http://localhost:3000` | Allowed frontend origins for CORS |
+| `TEMP_DIR` | system temp directory | Temporary storage for uploads and generated files |
 
-### Frontend (`frontend/.env`)
+### Frontend
+
+Create a file named `.env` inside the frontend folder:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `VITE_API_URL` | `` (empty, uses Vite proxy) | Backend API URL |
+| `VITE_API_URL` | `http://localhost:8000` | Base URL for the backend API |
 
----
+## Troubleshooting
+
+- If `python3 -m venv` fails, install the system venv package first.
+- If Docker cannot connect, start Docker Desktop or the Docker service.
+- If PDF to JPG or PNG fails, verify that Poppler is installed.
+- If the frontend cannot reach the API, confirm that the backend is running on port 8000.
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
+| Frontend | React, Vite, Tailwind CSS |
 | Backend | FastAPI, Uvicorn |
-| Conversion | pypdf, Pillow, openpyxl, python-docx, reportlab, pdf2image |
-| Frontend | React 18, Vite, Tailwind CSS |
-| HTTP Client | Axios |
-| Containerisation | Docker, Docker Compose |
+| Conversion libraries | Pillow, pypdf, openpyxl, python-docx, reportlab, pdf2image |
+| Containerization | Docker, Docker Compose |
