@@ -85,19 +85,26 @@ class ConversionService:
                 )
 
     # ------------------------------------------------------------------ #
-    # PDF → Word (DOCX)
+    # PDF → Word (DOCX)  — text extraction via pypdf + python-docx
     # ------------------------------------------------------------------ #
     async def _pdf_to_docx(self, input_path: str, output_path: str, _target_format: str):
         try:
-            from pdf2docx import Converter  # type: ignore
+            import pypdf
+            from docx import Document
         except ImportError as e:
             raise HTTPException(status_code=500, detail=f"Missing dependency: {e}")
 
-        cv = Converter(input_path)
         try:
-            cv.convert(output_path, start=0, end=None)
-        finally:
-            cv.close()
+            reader = pypdf.PdfReader(input_path)
+            doc = Document()
+            for page in reader.pages:
+                text = page.extract_text() or ""
+                for line in text.splitlines():
+                    doc.add_paragraph(line)
+                doc.add_paragraph()  # blank line between pages
+            doc.save(output_path)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"PDF to DOCX conversion failed: {e}")
 
     # ------------------------------------------------------------------ #
     # Image ↔ Image
