@@ -6,3 +6,4 @@ dockerfilePath = "Dockerfile"
 restartPolicyType = "on_failure"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 30
+watchPatterns = ["**"]
