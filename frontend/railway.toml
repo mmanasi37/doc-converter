@@ -1,0 +1,7 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+buildArgs = { VITE_API_URL = "https://doc-converter-production-01ee.up.railway.app" }
+
+[deploy]
+restartPolicyType = "on_failure"
