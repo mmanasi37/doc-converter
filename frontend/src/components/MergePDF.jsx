@@ -2,7 +2,7 @@ import { useState, useCallback, useRef } from 'react'
 import axios from 'axios'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
-const MAX_FILE_MB = 50
+const MAX_FILE_MB = 4
 
 function MergePDF({ darkMode }) {
   const [files, setFiles] = useState([])

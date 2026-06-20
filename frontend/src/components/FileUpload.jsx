@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react'
 
 const ACCEPTED_EXTENSIONS = ['.docx', '.xlsx', '.pdf', '.jpg', '.jpeg', '.png']
-const MAX_FILE_MB = 50
+const MAX_FILE_MB = 4
 
 function FileUpload({ file, onFileChange }) {
   const inputRef = useRef(null)
