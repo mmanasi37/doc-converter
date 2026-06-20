@@ -19,7 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(convert_router, prefix="/api")
+app.include_router(convert_router)
 
 
 @app.get("/")
